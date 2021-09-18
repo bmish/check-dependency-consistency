@@ -35,13 +35,14 @@ export type MismatchingDependencyVersions = Array<{
  * }
  */
 export function calculateVersionsForEachDependency(
-  root: string
+  root: string,
+  ignorePackage: string[]
 ): DependenciesToVersionsSeen {
   const dependenciesToVersionsSeen: DependenciesToVersionsSeen = new Map<
     string,
     { packageName: string; version: string }[]
   >();
-  getPackageJsonPaths(root).forEach((packageJsonPath) =>
+  getPackageJsonPaths(root, ignorePackage).forEach((packageJsonPath) =>
     recordDependencyVersionsForPackageJson(
       dependenciesToVersionsSeen,
       packageJsonPath,
@@ -169,9 +170,10 @@ export function filterOutIgnoredDependencies(
 
 export function fixMismatchingVersions(
   root: string,
+  ignorePackage: string[],
   mismatchingVersions: MismatchingDependencyVersions
 ): MismatchingDependencyVersions {
-  const packageJsonPaths = getPackageJsonPaths(root);
+  const packageJsonPaths = getPackageJsonPaths(root, ignorePackage);
 
   // Return any mismatching versions that are still present after attempting fixes.
   return mismatchingVersions

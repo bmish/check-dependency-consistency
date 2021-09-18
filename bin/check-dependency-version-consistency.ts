@@ -49,16 +49,32 @@ function run() {
       collect,
       []
     )
-    .action(function (path, options: { ignoreDep: string[]; fix: boolean }) {
+    .option(
+      '--ignore-package <package>',
+      'Package to ignore (option can be repeated)',
+      collect,
+      []
+    )
+    .action(function (
+      path,
+      options: { ignoreDep: string[]; ignorePackage: string[]; fix: boolean }
+    ) {
       // Calculate.
-      const dependencyVersions = calculateVersionsForEachDependency(path);
+      const dependencyVersions = calculateVersionsForEachDependency(
+        path,
+        options.ignorePackage
+      );
       let mismatchingVersions = filterOutIgnoredDependencies(
         calculateMismatchingVersions(dependencyVersions),
         options.ignoreDep
       );
 
       if (options.fix) {
-        mismatchingVersions = fixMismatchingVersions(path, mismatchingVersions);
+        mismatchingVersions = fixMismatchingVersions(
+          path,
+          options.ignorePackage,
+          mismatchingVersions
+        );
       }
 
       // Show output.

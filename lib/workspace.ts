@@ -3,10 +3,23 @@ import { existsSync, readFileSync } from 'node:fs';
 import { getDirectoriesInPath } from './fs.js';
 import type { PackageJson } from 'type-fest';
 
-export function getPackageJsonPaths(root: string): string[] {
-  return getPackages(root).map((pkg: string) =>
-    join(root, pkg, 'package.json')
-  );
+export function getPackageJsonPaths(
+  root: string,
+  ignorePackage: string[]
+): string[] {
+  const packages = getPackages(root);
+
+  ignorePackage?.forEach((ignoredPackage) => {
+    if (!packages.includes(ignoredPackage)) {
+      throw new Error(
+        `Specified option '--ignore-package ${ignoredPackage}', but no such package detected.`
+      );
+    }
+  });
+
+  return packages
+    .filter((pkg) => !ignorePackage || !ignorePackage.includes(pkg))
+    .map((pkg: string) => join(root, pkg, 'package.json'));
 }
 
 function getPackages(root: string): string[] {
